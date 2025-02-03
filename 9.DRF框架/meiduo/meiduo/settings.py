@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
-
+from datetime import timedelta
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -31,19 +31,22 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'meiduo_admin.apps.AdminConfig',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -75,8 +78,13 @@ WSGI_APPLICATION = 'meiduo.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        # engine 引擎
+        'ENGINE': 'django.db.backends.mysql',
+        'HOST': '192.168.37.222',  # 数据库主机
+        'PORT': 3306,  # 数据库端口
+        'USER': 'zihan01',  # 数据库用户名
+        'PASSWORD': 'root',  # 数据库用户密码
+        'NAME': 'test_meiduo'  # 数据库名字
     }
 }
 
@@ -123,3 +131,29 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# 禁用 Django 自动在 URL 后面添加斜杠的行为
+APPEND_SLASH = True
+
+# CORS
+CORS_ORIGIN_WHITELIST = (
+    ' http://127.0.0.1:8080',
+    'http://localhost:8080'
+)
+
+# 指定认证形式
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+}
+# JWT_EXPIRATION_DELTA 指明token的有效期
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA': timedelta(days=1),
+    # 指定返回结果
+    # 'JWT_RESPONSE_PAYLOAD_HANDLER': 'meiduo.utils.jwt_response_handler',
+}
+
+CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
